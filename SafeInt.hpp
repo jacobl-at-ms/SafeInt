@@ -16,6 +16,11 @@ Please read helpfile.md before using the class.
 #ifndef SAFEINT_HPP
 #define SAFEINT_HPP
 
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 // It is a bit tricky to sort out what compiler we are actually using,
 // do this once here, and avoid cluttering the code
 #define VISUAL_STUDIO_COMPILER 0
@@ -420,9 +425,10 @@ enum SafeIntError
 // Now we need to define an exception handler
 // Internally defined exception handlers might assert
 #if defined SAFEINT_ASSERT_ON_EXCEPTION
-static inline void SafeIntExceptionAssert() SAFEINT_NOTHROW { SAFEINT_ASSERT(false); }
+// `static inline` doesn't work with header units so just use inline
+/* static */ inline void SafeIntExceptionAssert() SAFEINT_NOTHROW { SAFEINT_ASSERT(false); }
 #else
-static inline void SafeIntExceptionAssert() SAFEINT_NOTHROW {}
+/* static */ inline void SafeIntExceptionAssert() SAFEINT_NOTHROW {}
 #endif
 
 #define SAFEINT_EXCEPTION_WIN32 0
@@ -440,8 +446,6 @@ static inline void SafeIntExceptionAssert() SAFEINT_NOTHROW {}
     #define SAFEINT_EXCEPTION_METHOD SAFEINT_EXCEPTION_ABORT
     #endif
 #endif
-
-#if SAFEINT_EXCEPTION_METHOD == SAFEINT_EXCEPTION_CPP
 
 class SAFEINT_VISIBLE SafeIntException
 {
@@ -483,9 +487,9 @@ namespace safeint_exception_handlers
 
     typedef SafeIntExceptionHandler < SafeIntException > CPlusPlusExceptionHandler;
 }
+#if SAFEINT_EXCEPTION_METHOD == SAFEINT_EXCEPTION_CPP
 
 #define SafeIntDefaultExceptionHandler safeint_exception_handlers::CPlusPlusExceptionHandler
-#define SAFEINT_EXCEPTION_HANDLER_CPP 1
 
 #endif // SAFEINT_EXCEPTION_CPP
 
@@ -520,9 +524,10 @@ typedef safeint_exception_handlers::SafeIntWin32ExceptionHandler Win32ExceptionH
 #define SAFEINT_EXCEPTION_HANDLER_CPP 0
 #endif // SAFEINT_EXCEPTION_WIN32
 
-#if SAFEINT_EXCEPTION_METHOD == SAFEINT_EXCEPTION_ABORT
 // This has two possible implementations - one is failfast, the other is abort
-#if defined _CRT_SECURE_INVALID_PARAMETER && !defined SAFE_INT_USE_STDLIB
+#if defined SAFE_INT_ABORT
+    // the consumer has defined the abort method
+#elif defined _CRT_SECURE_INVALID_PARAMETER && !defined SAFE_INT_USE_STDLIB
     #define SAFE_INT_ABORT(msg) _CRT_SECURE_INVALID_PARAMETER(msg)
 #else
     // Calling fail fast is somewhat more robust than calling abort, 
@@ -533,6 +538,10 @@ typedef safeint_exception_handlers::SafeIntWin32ExceptionHandler Win32ExceptionH
 
 #endif
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-noreturn" // suppress clang diagnostic that we have on but upstream doesn't
+#endif
 namespace safeint_exception_handlers
 {
     class SafeInt_InvalidParameter
@@ -551,10 +560,13 @@ namespace safeint_exception_handlers
         }
    };
 }
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
+#if SAFEINT_EXCEPTION_METHOD == SAFEINT_EXCEPTION_ABORT
 typedef safeint_exception_handlers::SafeInt_InvalidParameter InvalidParameterExceptionHandler;
 #define SafeIntDefaultExceptionHandler InvalidParameterExceptionHandler
-#define SAFEINT_EXCEPTION_HANDLER_CPP 0
 #endif
 
 #endif // defined SafeIntDefaultExceptionHandler
@@ -6958,5 +6970,8 @@ SAFEINT_CONSTEXPR11 SafeInt< T, E > operator |( U lhs, SafeInt< T, E > rhs ) SAF
 {
     return SafeInt< T, E >( BinaryOrHelper< T, U, BinaryMethod< T, U >::method >::Or( (T)rhs, lhs ) );
 }
+
+#pragma pop_macro("min")
+#pragma pop_macro("max")
 
 #endif //SAFEINT_HPP
