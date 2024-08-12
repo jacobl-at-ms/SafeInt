@@ -801,6 +801,7 @@ template < typename T, bool > class NegationHelper;
 template < typename T > class NegationHelper <T, true> // Signed
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
     template <typename E>
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static T NegativeThrow( T t ) SAFEINT_CPP_THROW
     {
@@ -963,6 +964,7 @@ public:
         if (d < 0 || d > static_cast<double>(maxUnsignedDouble))
             return false;
 
+        static_assert(std::is_enum_v<T> == false);
         // The input can now safely be cast to an unsigned long long
         if (static_cast<std::uint64_t>(d) > std::numeric_limits<T>::max())
             return false;
@@ -974,6 +976,7 @@ public:
 template <typename T> class float_cast_helper <T, false> // Signed case
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Test(double d)
     {
         const std::uint64_t signifDouble = 0x1fffffffffffff;
@@ -987,6 +990,7 @@ public:
 
         // And now cast to long long, and check against min and max for this type
         std::int64_t test = static_cast<std::int64_t>(d);
+        static_assert(std::is_enum_v<T> == false);
         if ((std::int64_t)test < (std::int64_t)std::numeric_limits<T>::min() || (std::int64_t)test >(std::int64_t)std::numeric_limits<T>::max())
             return false;
 
@@ -1122,6 +1126,8 @@ public:
 template < typename T, typename U > class SafeCastHelper < T, U, CastCheckGTMax >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Cast( U u, T& t ) SAFEINT_NOTHROW
     {
         if( u > (U)std::numeric_limits<T>::max() )
@@ -1144,6 +1150,8 @@ public:
 template < typename T, typename U > class SafeCastHelper < T, U, CastCheckSafeIntMinMaxUnsigned >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Cast( U u, T& t ) SAFEINT_NOTHROW
     {
         // U is signed - T could be either signed or unsigned
@@ -1168,6 +1176,8 @@ public:
 template < typename T, typename U > class SafeCastHelper < T, U, CastCheckSafeIntMinMaxSigned >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Cast( U u, T& t ) SAFEINT_NOTHROW
     {
         // T, U are signed
@@ -1592,6 +1602,8 @@ template <typename T, typename U, int state> class MultiplicationHelper;
 template < typename T, typename U > class MultiplicationHelper< T, U, MultiplicationState_CastInt>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     //accepts signed, both less than 32-bit
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Multiply( const T& t, const U& u, T& ret ) SAFEINT_NOTHROW
     {
@@ -1619,6 +1631,8 @@ public:
 template < typename T, typename U > class MultiplicationHelper< T, U, MultiplicationState_CastUint >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     //accepts unsigned, both less than 32-bit
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Multiply( const T& t, const U& u, T& ret ) SAFEINT_NOTHROW
     {
@@ -1646,6 +1660,8 @@ public:
 template < typename T, typename U > class MultiplicationHelper< T, U, MultiplicationState_CastInt64>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     //mixed signed or both signed where at least one argument is 32-bit, and both a 32-bit or less
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Multiply( const T& t, const U& u, T& ret ) SAFEINT_NOTHROW
     {
@@ -1673,6 +1689,8 @@ public:
 template < typename T, typename U > class MultiplicationHelper< T, U, MultiplicationState_CastUint64>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     //both unsigned where at least one argument is 32-bit, and both are 32-bit or less
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Multiply( const T& t, const U& u, T& ret ) SAFEINT_NOTHROW
     {
@@ -3288,6 +3306,8 @@ public:
 template < typename T, typename U > class DivisionHelper< T, U, DivisionState_SignedUnsigned64 >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static SafeIntError Divide( const T& t, const std::uint64_t& u, T& result ) SAFEINT_NOTHROW
     {
         static_assert(safeint_internal::int_traits<U>::isUint64, "U must be Uint64");
@@ -3303,6 +3323,7 @@ public:
             return SafeIntNoError;
         }
 
+        static_assert(std::is_enum_v<T> == false);
         if( u <= (std::uint64_t)std::numeric_limits<T>::max() )
         {
             result = div_signed_uint64 < T, U, sizeof(T) < sizeof(std::int64_t) > ::divide(t, u);
@@ -3336,6 +3357,7 @@ public:
             return;
         }
 
+        static_assert(std::is_enum_v<T> == false);
         if( u <= (std::uint64_t)std::numeric_limits<T>::max() )
         {
             result = div_signed_uint64 < T, U, sizeof(T) < sizeof(std::int64_t) > ::divide(t, u);
@@ -3396,6 +3418,8 @@ public:
 template < typename T, typename U > class DivisionHelper< T, U, DivisionState_SignedSigned>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static SafeIntError Divide( const T& t, const U& u, T& result ) SAFEINT_NOTHROW
     {
         if( u == 0 )
@@ -3501,6 +3525,8 @@ template < typename T, typename U, int method > class AdditionHelper;
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastIntCheckMax >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         //16-bit or less unsigned addition
@@ -3567,6 +3593,8 @@ public:
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastUintCheckOverflowMax>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // 32-bit or less - both are unsigned
@@ -3635,6 +3663,8 @@ public:
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastUint64CheckOverflowMax >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         //lhs std::uint64_t, rhs unsigned
@@ -3670,6 +3700,8 @@ public:
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastIntCheckSafeIntMinMax >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // 16-bit or less - one or both are signed
@@ -3703,6 +3735,8 @@ public:
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastInt64CheckSafeIntMinMax >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // 32-bit or less - one or both are signed
@@ -3736,6 +3770,8 @@ public:
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastInt64CheckMax >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // 32-bit or less - lhs signed, rhs unsigned
@@ -3838,6 +3874,8 @@ public:
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastUint64CheckSafeIntMinMax2>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // lhs is unsigned and < 64-bit, rhs std::int64_t
@@ -3945,6 +3983,8 @@ public:
 template < typename T, typename U > class AdditionHelper < T, U, AdditionState_CastInt64CheckOverflowSafeIntMinMax>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Addition( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         //rhs is std::int64_t, lhs signed
@@ -4312,6 +4352,8 @@ public:
 template < typename T, typename U > class SubtractionHelper< T, U, SubtractionState_CastIntCheckMin >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // both values are 16-bit or less
@@ -4393,6 +4435,8 @@ public:
 template < typename T, typename U > class SubtractionHelper< T, U, SubtractionState_CastInt64CheckMin >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // both values are 32-bit or less
@@ -4483,6 +4527,8 @@ public:
 template < typename U, typename T > class SubtractionHelper< U, T, SubtractionState_Uint64Int2 >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const U& lhs, const T& rhs, T& result ) SAFEINT_NOTHROW
     {
         // U is std::uint64_t, T is signed
@@ -4568,6 +4614,8 @@ public:
 template < typename T, typename U > class SubtractionHelper< T, U, SubtractionState_UintInt64 >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // lhs is an unsigned int32 or smaller, rhs std::int64_t
@@ -4633,6 +4681,8 @@ public:
 template <typename U, typename T> class SubtractionHelper< U, T, SubtractionState_UintInt642 >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const U& lhs, const T& rhs, T& result ) SAFEINT_NOTHROW
     {
         // U unsigned 32-bit or less, T std::int64_t
@@ -4744,6 +4794,8 @@ template < typename T, typename U, bool > class subtract_corner_case_max;
 template < typename T, typename U> class subtract_corner_case_max < T, U, true>
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool isOverflowPositive(const T& rhs, const U& lhs, std::int64_t tmp)
     {
         return (tmp > std::numeric_limits<T>::max() || (rhs < 0 && tmp < lhs));
@@ -4844,6 +4896,8 @@ public:
 template < typename T, typename U > class SubtractionHelper< T, U, SubtractionState_IntInt64 >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // lhs is a 32-bit int or less, rhs std::int64_t
@@ -5038,6 +5092,8 @@ public:
 template < typename U, typename T > class SubtractionHelper< U, T, SubtractionState_Int64Uint2 >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     // lhs is std::int64_t, rhs is unsigned 32-bit or smaller
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const U& lhs, const T& rhs, T& result ) SAFEINT_NOTHROW
     {
@@ -5072,6 +5128,8 @@ public:
 template < typename T, typename U > class SubtractionHelper< T, U, SubtractionState_IntUint64 >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
+
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Subtract( const T& lhs, const U& rhs, T& result ) SAFEINT_NOTHROW
     {
         // lhs is any signed int, rhs unsigned int64
@@ -5720,6 +5778,7 @@ public:
     // prefix increment operator
     SAFEINT_CONSTEXPR14 SafeInt< T, E >& operator ++() SAFEINT_CPP_THROW
     {
+        static_assert(std::is_enum_v<T> == false);
         if( m_int != std::numeric_limits<T>::max() )
         {
             ++m_int;
@@ -5745,6 +5804,7 @@ public:
     // postfix increment operator
     SAFEINT_CONSTEXPR14 SafeInt< T, E > operator ++( int )  SAFEINT_CPP_THROW // dummy arg to comply with spec
     {
+        static_assert(std::is_enum_v<T> == false);
         if( m_int != std::numeric_limits<T>::max() )
         {
             SafeInt< T, E > tmp( m_int );
@@ -5758,6 +5818,7 @@ public:
     // postfix decrement operator
     SAFEINT_CONSTEXPR14 SafeInt< T, E > operator --( int ) SAFEINT_CPP_THROW // dummy arg to comply with spec
     {
+        static_assert(std::is_enum_v<T> == false);
         if( m_int != std::numeric_limits<T>::min() )
         {
             SafeInt< T, E > tmp( m_int );
@@ -6205,12 +6266,14 @@ public:
     // Miscellaneous helper functions
     SafeInt< T, E > Min( SafeInt< T, E > test, const T floor = std::numeric_limits<T>::min() ) const SAFEINT_NOTHROW
     {
+        static_assert(std::is_enum_v<T> == false);
         T tmp = test < m_int ? (T)test : m_int;
         return tmp < floor ? floor : tmp;
     }
 
     SafeInt< T, E > Max( SafeInt< T, E > test, const T upper = std::numeric_limits<T>::max() ) const SAFEINT_NOTHROW
     {
+        static_assert(std::is_enum_v<T> == false);
         T tmp = test > m_int ? (T)test : m_int;
         return tmp > upper ? upper : tmp;
     }
@@ -6583,6 +6646,7 @@ public:
 template < typename T, typename U, typename E > class DivisionNegativeCornerCaseHelper< T, U, E, true >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
     SAFE_INT_NODISCARD static bool NegativeCornerCase( U lhs, SafeInt< T, E > rhs, SafeInt<T, E>& result ) SAFEINT_CPP_THROW
     {
         // Problem case - normal casting behavior changes meaning
@@ -6661,6 +6725,7 @@ template < typename T, typename U, bool > class div_negate_min;
 template < typename T, typename U > class div_negate_min < T, U , true >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool Value(T& ret)
     {
         ret = (T)(-(T)std::numeric_limits< U >::min());
@@ -6680,6 +6745,7 @@ public:
 template < typename T, typename U, typename E > class DivisionCornerCaseHelper2 < T, U, E, true >
 {
 public:
+    static_assert(std::is_enum_v<T> == false);
     SAFE_INT_NODISCARD SAFEINT_CONSTEXPR14 static bool DivisionCornerCase2( U lhs, SafeInt< T, E > rhs, SafeInt<T, E>& result ) SAFEINT_CPP_THROW
     {
         if( lhs == std::numeric_limits< U >::min() && (T)rhs == -1 )
